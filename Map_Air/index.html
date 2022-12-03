@@ -1,0 +1,199 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Air pollution</title>
+    <style>
+        html, body, #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css">
+    <link rel="stylesheet" href="web.css">
+    <script src="https://js.arcgis.com/4.17/"></script>
+    <script src="air.js"></script>
+    <script src="co.js"></script>
+    <script src="no2.js"></script>
+    <script src="o3.js"></script>
+    <script src="pm10.js"></script>
+    <script src="pm25.js"></script>
+    <script src="so2.js"></script>
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/renderers/ClassBreaksRenderer"
+        ], function (Map, MapView, FeatureLayer, ClassBreaksRenderer) {
+
+            var map = new Map({
+                basemap: "topo-vector"
+            });
+
+            var view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [105.77373 , 21.11737], 
+                zoom: 15
+            });
+
+            var airRenderer = new ClassBreaksRenderer({
+                type: "class-breaks",
+                field: "value"
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 0.001,
+                maxValue: 50.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(34, 204, 0, 0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+                    }
+                }
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 50.001,
+                maxValue: 100.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(225, 227, 96, 0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+                    }
+                }
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 100.001,
+                maxValue: 150.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(255, 153, 0, 0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+                    }
+                }
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 150.001,
+                maxValue: 200.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(255,0,0,0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+                    }
+                }
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 200.001,
+                maxValue: 300.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(215, 52, 180, 0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+                    }
+                }
+            });
+
+            airRenderer.addClassBreakInfo({
+                minValue: 300.001,
+                maxValue: 9999999999.0,
+                symbol: {
+                    type: "simple-fill",
+                    color: "rgba(132, 32, 32, 0.5)",
+                    // color: "rgba(255,255,255,0.5)",
+                    outline: {
+                        width: 0.1,
+                        color: "rgb(255,254,253)"
+                        // color: "rgb(0,0,0)"
+
+                    }
+                }
+            });
+            var airLayerUrl = "https://services8.arcgis.com/gfbPq2TJv9V7MYhr/arcgis/rest/services/air/FeatureServer/0";  
+            var pollutants = new FeatureLayer({
+                url: airLayerUrl,
+                renderer: airRenderer,
+            });
+            map.add(pollutants);
+        });
+
+        function ChangeLayer() {
+            var text = document.getElementById("selectLayer").value;
+            if (text == 'air') ChangeToAirLayer();
+            if (text == 'co') ChangeToCOLayer();
+            if (text == 'nh3') ChangeToNH3Layer();
+            if (text == 'no2') ChangeToNO2Layer();
+            if (text == 'o3') ChangeToO3Layer();
+            if (text == 'pm10') ChangeToPM10Layer();
+            if (text == 'pm25') ChangeToPM25Layer();
+            if (text == 'so2') ChangeToSO2Layer();
+        }
+    </script>
+</head>
+<body>
+<div id="viewDiv"></div>
+<select id="selectLayer" onchange="ChangeLayer()">
+    <option value="air">Không khí</option>
+    <option value="co">CO</option>
+    <option value="o3">O3</option>
+    <option value="no2">NO2</option>
+    <option value="so2">SO2</option>
+    <option value="pm10">PM10</option>
+    <option value="pm25">PM2.5</option>
+   
+</select>
+<div id="palette">
+    <div id="ranges" class="fl">
+        <div id="range1" class="ph text-right">0-50</div>
+        <div id="range2" class="ph text-right">51-100</div>
+        <div id="range3" class="ph text-right">101-150</div>
+        <div id="range4" class="ph text-right">151-200</div>
+        <div id="range5" class="ph text-right">201-300</div>
+        <div id="range6" class="ph text-right">301-500</div>
+    </div>
+    <div id="colors" class="fl ml-05">
+        <div id="color1" class="pw ph"></div>
+        <div id="color2" class="pw ph"></div>
+        <div id="color3" class="pw ph"></div>
+        <div id="color4" class="pw ph"></div>
+        <div id="color5" class="pw ph"></div>
+        <div id="color6" class="pw ph"></div>
+    </div>
+    <div id="explains" class="fl">
+        <div id="explain1" class="ml-05 ph center-v">Tốt</div>
+        <div id="explain2" class="ml-05 ph center-v">Ô nhiễm vừa phải</div>
+        <div id="explain3" class="ml-05 ph center-v">Không lành mạnh với 1 số nhóm nhạy cảm</div>
+        <div id="explain4" class="ml-05 ph center-v">Không tốt</div>
+        <div id="explain5" class="ml-05 ph center-v">Rất xấu</div>
+        <div id="explain6" class="ml-05 ph center-v">Nguy hiểm</div>
+    </div>
+</div>
+</body>
+</html>
